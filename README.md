@@ -3,22 +3,21 @@
 A production-style distributed system for real-time log ingestion, processing, visualization, and alerting.
 
 ---
-'''text
 ##  Architecture
 
-
+```text
 Client
-  |
+  ↓
 Flask API
-  |
+  ↓
 Redis Queue (Async Buffer)
-  |
+  ↓
 Worker (Processor)
-  |-> MongoDB        → Persistent Storage
-  |-> WebSocket      → Real-time Dashboard
-  |-> Webhooks       → Alerting System
+  ├── MongoDB        → Persistent Storage
+  ├── WebSocket      → Real-time Dashboard
+  └── Webhooks       → Alerting System
+```
 ---
-'''
 ## Features
 
 * Real-time log streaming via WebSockets
