@@ -3,7 +3,7 @@
 A production-style distributed system for real-time log ingestion, processing, visualization, and alerting.
 
 ---
-
+'''text
 ##  Architecture
 
 
@@ -18,7 +18,7 @@ Worker (Processor)
   |-> WebSocket      → Real-time Dashboard
   |-> Webhooks       → Alerting System
 ---
-
+'''
 ## Features
 
 * Real-time log streaming via WebSockets
