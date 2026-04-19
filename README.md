@@ -88,6 +88,10 @@ curl -X POST http://localhost:5000/log \
 * Role-based access control
 * Deployment to cloud (AWS/GCP)
 
+## Dashboard
+
+![Dashboard](screenshots/dashboard.png)
+
 ---
 
 ## Author
