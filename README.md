@@ -4,21 +4,19 @@ A production-style distributed system for real-time log ingestion, processing, v
 
 ---
 
-## Architecture
-Client
-  │
-  ▼
-Flask API
-  │
-  ▼
-Redis Queue
-  │
-  ▼
-Worker
-  ├── MongoDB (Persistent Storage)
-  ├── WebSocket (Real-time UI Updates)
-  └── Webhook Alerts (Error Notifications)
+##  Architecture
 
+```text
+Client
+  ↓
+Flask API
+  ↓
+Redis Queue (Async Buffer)
+  ↓
+Worker (Processor)
+  ├── MongoDB        → Persistent Storage
+  ├── WebSocket      → Real-time Dashboard
+  └── Webhooks       → Alerting System
 ---
 
 ## Features
