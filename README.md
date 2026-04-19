@@ -91,6 +91,7 @@ curl -X POST http://localhost:5000/log \
 ## Dashboard
 
 ![Dashboard](screenshots/dashboard.png)
+![Alerts](screehshots/webhooks.png)
 
 ---
 
