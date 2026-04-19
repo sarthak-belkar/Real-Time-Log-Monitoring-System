@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Distributed Log Monitor</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+</head>
+<body>
+    <header class="navbar">
+        <div class="brand">
+            <span class="icon"></span>
+            <h1>LogMonitor</h1>
+        </div>
+        <div class="stats">
+            <div class="stat-badge error-stat">Errors: <span id="error-count">0</span></div>
+            <div class="stat-badge">Total: <span id="total-count">0</span></div>
+            <div id="status-indicator" class="status disconnected">
+                <span class="dot"></span> <span id="status-text">Disconnected</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <section class="control-group">
+                <h3>Controls</h3>
+                <button id="btn-pause" class="btn">⏸ Pause Stream</button>
+                <button id="btn-clear" class="btn btn-danger">🗑 Clear Logs</button>
+                <label class="toggle">
+                    <input type="checkbox" id="toggle-autoscroll" checked>
+                    Lock to Newest (Top)
+                </label>
+            </section>
+
+            <section class="control-group">
+                <h3>Filters</h3>
+                <div class="input-group">
+                    <label for="filter-search">Search Message</label>
+                    <input type="text" id="filter-search" placeholder="e.g. timeout...">
+                </div>
+                <div class="input-group">
+                    <label for="filter-level">Severity Level</label>
+                    <select id="filter-level">
+                        <option value="ALL">All Levels</option>
+                        <option value="INFO">INFO</option>
+                        <option value="WARN">WARN</option>
+                        <option value="ERROR">ERROR</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="filter-service">Service Name</label>
+                    <input type="text" id="filter-service" placeholder="e.g. auth-service">
+                </div>
+            </section>
+        </aside>
+
+        <main class="log-stream-wrapper">
+            <div id="logs-container" class="logs-container">
+                </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
