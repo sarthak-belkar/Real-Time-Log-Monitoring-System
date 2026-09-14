@@ -104,10 +104,20 @@ curl -X POST http://localhost:5000/log \
 * Distributed trace ID propagation across microservices
 
 
-## Dashboard
+## 📸 Dashboard & Screenshots
 
-![Dashboard](screenshots/dashboard.png)
-![Alerts](screenshots/webhooks.png)
+### 1. Live Telemetry & Ingestion Dashboard
+Real-time continuous throughput rate (events/sec), 24h severity breakdown, and live incoming log stream.
+![Live Telemetry Dashboard](screenshots/dashboard.png)
+
+### 2. Interactive JSON Inspector & Quick Actions
+Click any log entry to expand an accordion drawer with formatted JSON payloads, service filtering, and clipboard copy.
+![Interactive JSON Inspector](screenshots/log_details.png)
+
+### 3. Smart Alerting Notifications
+Automated Discord/Slack webhook notifications triggered by rolling error thresholds with anti-spam cooldowns.
+![Threshold Alert Notifications](screenshots/webhooks.png)
+
 
 ---
 
