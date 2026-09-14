@@ -3,65 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Distributed Log Monitor</title>
+    <title>LogPulse · Real-Time Distributed Log Monitor</title>
+    <!-- Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+    <!-- Reconnection Toast Banner -->
+    <div id="reconnect-banner" class="reconnect-banner hidden" role="alert">
+        <span class="pulse-warning"></span>
+        <span>Connection lost. Attempting to reconnect to WebSocket stream...</span>
+    </div>
+
+    <!-- Header Navbar -->
     <header class="navbar">
-        <div class="brand">
-            <span class="icon"></span>
-            <h1>LogMonitor</h1>
+        <div class="brand-section">
+            <button id="btn-toggle-sidebar" class="btn-icon mobile-only" aria-label="Toggle navigation drawer">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+            <div class="brand">
+                <div class="brand-logo">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                    </svg>
+                </div>
+                <div>
+                    <h1>LogPulse</h1>
+                    <span class="brand-tag">LIVE TELEMETRY</span>
+                </div>
+            </div>
         </div>
-        <div class="stats">
-            <div class="stat-badge error-stat">Errors: <span id="error-count">0</span></div>
-            <div class="stat-badge">Total: <span id="total-count">0</span></div>
-            <div id="status-indicator" class="status disconnected">
-                <span class="dot"></span> <span id="status-text">Disconnected</span>
+
+        <div class="metrics-bar">
+            <div class="metric-card" title="Live ingestion throughput">
+                <span class="metric-label">Rate</span>
+                <span class="metric-value"><span id="rate-count">0</span> <small>eps</small></span>
+            </div>
+            <div class="metric-card" title="Total ingested logs recorded">
+                <span class="metric-label">Total Logs</span>
+                <span class="metric-value" id="total-count">0</span>
+            </div>
+            <div class="metric-card error-card" title="Error occurrences recorded">
+                <span class="metric-label">Errors</span>
+                <span class="metric-value"><span id="error-count">0</span> <small id="error-rate">(0%)</small></span>
+            </div>
+            <div id="status-indicator" class="status-pill disconnected" title="WebSocket connection status">
+                <span class="status-dot"></span>
+                <span id="status-text">Disconnected</span>
             </div>
         </div>
     </header>
 
+    <!-- Main Workspace -->
     <div class="dashboard-container">
-        
-        <aside class="sidebar">
-            <section class="control-group">
-                <h3>Controls</h3>
-                <button id="btn-pause" class="btn">⏸ Pause Stream</button>
-                <button id="btn-clear" class="btn btn-danger">🗑 Clear Logs</button>
-                <label class="toggle">
+        <!-- Sidebar Controls -->
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-section">
+                <div class="section-header">
+                    <h3>Stream Controls</h3>
+                </div>
+                <div class="btn-grid">
+                    <button id="btn-pause" class="btn btn-primary" title="Pause or resume incoming live logs">
+                        <span id="pause-icon">⏸</span> <span id="pause-text">Pause Stream</span>
+                    </button>
+                    <button id="btn-clear" class="btn btn-outline-danger" title="Clear displayed logs from dashboard">
+                        🗑 Clear View
+                    </button>
+                </div>
+                <label class="toggle-switch">
                     <input type="checkbox" id="toggle-autoscroll" checked>
-                    Lock to Newest (Top)
+                    <span class="switch-slider"></span>
+                    <span class="toggle-label">Auto-scroll to Newest</span>
                 </label>
-            </section>
+                <button id="btn-export" class="btn btn-secondary btn-export" title="Export current logs as JSON">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                    Export Logs (JSON)
+                </button>
+            </div>
 
-            <section class="control-group">
-                <h3>Filters</h3>
-                <div class="input-group">
-                    <label for="filter-search">Search Message</label>
-                    <input type="text" id="filter-search" placeholder="e.g. timeout...">
+            <div class="sidebar-section">
+                <div class="section-header">
+                    <h3>Severity Filter</h3>
                 </div>
-                <div class="input-group">
-                    <label for="filter-level">Severity Level</label>
-                    <select id="filter-level">
-                        <option value="ALL">All Levels</option>
-                        <option value="INFO">INFO</option>
-                        <option value="WARN">WARN</option>
-                        <option value="ERROR">ERROR</option>
-                    </select>
+                <div class="severity-pills" id="severity-pills">
+                    <button class="pill active" data-level="ALL">ALL</button>
+                    <button class="pill pill-info" data-level="INFO">INFO</button>
+                    <button class="pill pill-warn" data-level="WARN">WARN</button>
+                    <button class="pill pill-error" data-level="ERROR">ERROR</button>
+                    <button class="pill pill-debug" data-level="DEBUG">DEBUG</button>
                 </div>
-                <div class="input-group">
+            </div>
+
+            <div class="sidebar-section">
+                <div class="section-header">
+                    <h3>Search & Filters</h3>
+                    <button id="btn-reset-filters" class="btn-text" title="Reset all search filters">Reset</button>
+                </div>
+                
+                <div class="input-field">
+                    <label for="filter-search">Message Content</label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" id="filter-search" placeholder="Search in messages..." autocomplete="off">
+                        <button id="btn-clear-search" class="btn-icon-clear hidden" aria-label="Clear search">×</button>
+                    </div>
+                </div>
+
+                <div class="input-field">
                     <label for="filter-service">Service Name</label>
-                    <input type="text" id="filter-service" placeholder="e.g. auth-service">
+                    <div class="input-wrapper">
+                        <svg class="input-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                        <input type="text" id="filter-service" placeholder="e.g. auth, payment..." autocomplete="off">
+                        <button id="btn-clear-service" class="btn-icon-clear hidden" aria-label="Clear service filter">×</button>
+                    </div>
                 </div>
-            </section>
+
+                <div class="active-filter-badge hidden" id="active-service-badge">
+                    <span>Filtering by: <strong id="active-service-text"></strong></span>
+                    <button id="btn-remove-service-filter" aria-label="Remove filter">×</button>
+                </div>
+            </div>
         </aside>
 
-        <main class="log-stream-wrapper">
-            <div id="logs-container" class="logs-container">
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Analytics Overview Cards -->
+            <section class="charts-row">
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div>
+                            <h4>Throughput Rate</h4>
+                            <span class="chart-subtitle">Events per second</span>
+                        </div>
+                        <span class="badge-tag">Last 60 Seconds</span>
+                    </div>
+                    <div class="chart-canvas-container">
+                        <canvas id="timeChart"></canvas>
+                    </div>
                 </div>
+
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <div>
+                            <h4>Severity Distribution</h4>
+                            <span class="chart-subtitle">Log count breakdown</span>
+                        </div>
+                        <span class="badge-tag">24h Aggregate</span>
+                    </div>
+                    <div class="chart-canvas-container">
+                        <canvas id="levelChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stream Table Header -->
+            <div class="stream-header">
+                <div class="col-time">TIMESTAMP</div>
+                <div class="col-level">LEVEL</div>
+                <div class="col-service">SERVICE</div>
+                <div class="col-message">MESSAGE</div>
+                <div class="col-actions">ACTIONS</div>
+            </div>
+
+            <!-- Log Stream Container -->
+            <div id="logs-container" class="logs-container" role="log" aria-live="polite">
+                <!-- Log entries inserted here dynamically -->
+            </div>
         </main>
     </div>
+
+    <!-- Toast Notification for Copy -->
+    <div id="toast" class="toast hidden">Copied to clipboard!</div>
 
     <script src="app.js"></script>
 </body>

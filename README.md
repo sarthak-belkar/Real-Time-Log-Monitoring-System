@@ -20,22 +20,23 @@ Worker (Processor)
 ---
 ## Features
 
-* Real-time log streaming via WebSockets
-* Redis-based asynchronous queue processing
-* MongoDB persistence with indexing
-* Smart alerting system (threshold-based + webhook notifications)
-* Filtering and search in UI
-* Fully containerized using Docker Compose
+* **Real-Time Log Streaming**: Instant event broadcasting to connected dashboards via WebSockets (Flask-SocketIO + Redis message queue).
+* **Decoupled Asynchronous Queue**: Redis `log_queue` buffers high-volume ingestion, isolating the HTTP API from downstream processing.
+* **Dead Letter Queue (DLQ)**: Automatic poison-pill isolation (`log_dlq`) with retry limits (`MAX_RETRIES = 3`).
+* **Non-Blocking Alerting**: Asynchronous Discord/Slack webhook dispatching with anti-spam cooldowns (60s).
+* **MongoDB Persistence & TTL Retention**: Compound indexing for filtered sorting and 7-day automatic TTL expiration.
+* **Observability Dashboard**: Continuous 60s throughput rate chart, 24h severity breakdown, debounced search, expandable JSON inspection drawers, and export-to-JSON.
+* **Containerized with Health Checks**: Zero-configuration switching between local development and Docker Compose.
 
 ---
 
 ## Tech Stack
 
-* Backend: Flask, Flask-SocketIO
-* Queue: Redis
-* Database: MongoDB
-* Frontend: HTML, CSS, JavaScript
-* DevOps: Docker, Docker Compose
+* **Backend**: Flask, Flask-SocketIO, Python 3.11
+* **Queue & Buffer**: Redis 7
+* **Database**: MongoDB 6 with compound & TTL indexes
+* **Frontend**: Vanilla HTML5, CSS3 (Custom Design System), JavaScript (ES6+), Chart.js
+* **DevOps**: Docker, Docker Compose (with automated healthchecks)
 
 ---
 
@@ -56,9 +57,24 @@ cp .env.example .env
 
 ### 3. Start system
 
+#### Option A: With Docker (Recommended)
 ```bash
 docker compose up --build
 ```
+
+#### Option B: Local Development
+```bash
+# Terminal 1: API Server
+python backend/app.py
+
+# Terminal 2: Worker Daemon
+python backend/worker.py
+
+# Terminal 3: Simulated Generator
+npm run producer
+```
+
+Open `http://localhost:5000` to view the live dashboard.
 
 ---
 
@@ -74,19 +90,19 @@ curl -X POST http://localhost:5000/log \
 
 ## System Highlights
 
-* Decoupled architecture (API → Queue → Worker)
-* Handles high-throughput log ingestion
-* Real-time UI updates without polling
-* Alerting system prevents error flooding using thresholds
+* **Decoupled Architecture**: Ingestion API → Redis Queue Buffer → Worker Processor.
+* **High Throughput & Resilient**: Non-blocking asynchronous alerts, memory-safe request payload sanitization, and dead-letter queue isolation.
+* **Accurate Time-Series Telemetry**: Continuous 60-second sliding throughput metrics with zero-second idle tracking.
+* **Automated Data Lifecycle**: MongoDB 7-day TTL index automatically purges stale records.
 
 ---
 
 ## Future Improvements
 
-* Analytics dashboard (charts)
-* Log retention policies (TTL)
-* Role-based access control
-* Deployment to cloud (AWS/GCP)
+* Cloud deployment with Kubernetes / Helm chart (AWS EKS or GCP GKE)
+* Role-Based Access Control (RBAC) & OAuth2 authentication
+* Distributed trace ID propagation across microservices
+
 
 ## Dashboard
 

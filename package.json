@@ -1,11 +1,13 @@
 {
   "name": "real-time-log-monitoring-system",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Real-time distributed log monitoring and visualization system",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "producer": "node log_producer/generator.js",
+    "test": "pytest tests/ -v"
   },
+
+
   "keywords": [],
   "author": "",
   "license": "ISC",

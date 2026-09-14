@@ -5,7 +5,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Copy dependencies first (takes advantage of Docker layer caching)
-COPY requirements.txt .
+COPY backend/requirements.txt .
 
 # Install dependencies without storing cache to keep image small
 RUN pip install --no-cache-dir -r requirements.txt

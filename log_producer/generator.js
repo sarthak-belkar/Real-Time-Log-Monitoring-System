@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:3000/logs';
+const API_URL = process.env.API_URL || 'http://localhost:5000/log';
 
 const SERVICES = ['auth', 'database', 'payment', 'frontend', 'cache'];
 const LEVELS = ['info', 'warn', 'error', 'debug'];
