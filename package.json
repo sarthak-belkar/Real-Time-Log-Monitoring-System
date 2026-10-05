@@ -4,7 +4,9 @@
   "description": "Real-time distributed log monitoring and visualization system",
   "scripts": {
     "producer": "node log_producer/generator.js",
-    "test": "pytest tests/ -v"
+    "test": "pytest tests/ -v",
+    "stress-test": "node scripts/stress_test.js --total 5000 --concurrency 100",
+    "stress-test:py": "python scripts/stress_test.py --total 3000 --concurrency 50"
   },
 
 

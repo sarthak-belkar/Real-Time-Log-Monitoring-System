@@ -9,7 +9,10 @@ from datetime import datetime, timezone, timedelta
 from dotenv import load_dotenv
 
 
-from db import init_db
+try:
+    from backend.db import init_db
+except ImportError:
+    from db import init_db
 
 load_dotenv()
 
